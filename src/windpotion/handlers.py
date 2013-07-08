@@ -59,6 +59,9 @@ class RestHandler(RequestHandler):
             id = json_decode(id)
             self._service.delete(id)
 
+    @staticmethod
+    def getRouter(handler):
+        return [(r'/%s/?(?P<id>\d?)' % handler.Service.Entity.__name__.lower(), handler)]
 
 class SecureRestHandler(RestHandler):
     def __init__(self, application, request, **kwargs):

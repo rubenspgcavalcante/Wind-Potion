@@ -35,11 +35,12 @@ def service(Entity):
     class ServiceMeta(object):
         def __init__(self, cls):
             self.cls = cls
+            self.Entity = Entity
 
         def __call__(self, *args, **kwargs):
             obj = self.cls(*args, **kwargs)
             obj._meta = self
-            obj._entity = Entity
+            obj._entity = self.Entity
 
             availableMethods = ['list', 'findById', 'create', 'save', 'delete']
 
@@ -50,7 +51,7 @@ def service(Entity):
             return obj
 
         def list(self, limit=None, orderBy=None):
-            record = Entity.query
+            record = self.Entity.query
             if type(orderBy) is list:
                 for order in orderBy:
                     record = record.order_by(order)
@@ -64,21 +65,21 @@ def service(Entity):
             return record.all()
 
         def findById(self, id):
-            return Entity.get_by(id=id)
+            return self.Entity.get_by(id=id)
 
         def create(self, dict_attrs):
-            obj = Entity()
+            obj = self.Entity()
             obj.from_dict(dict_attrs)
             session.add(obj)
             session.commit()
 
         def save(self, dict_attrs):
-            obj = Entity.get_by(id=dict_attrs["id"])
+            obj = self.Entity.get_by(id=dict_attrs["id"])
             obj.from_dict(dict_attrs)
             session.commit()
 
         def delete(self, id):
-            obj = Entity.get_by(id=id)
+            obj = self.Entity.get_by(id=id)
             obj.delete()
             session.commit()
 

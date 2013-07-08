@@ -92,6 +92,26 @@ class UserService(object):
 Note the *_meta* property, this is because the original create method is from a metaclass,
 so you can access all the ServiceMeta methods using this property.
 
+#Getting the routers
+You can get the router bys using the RestHandler.getRouter method:
+```python
+
+#Adding to the application the UserRestHandler router
+application = tornado.web.Application(
+        RestHandler.getRouter(UserRESTHandler)
+    ,**settings)
+
+```
+
+Using as reference the MyEntity elixir entity, the table of route is this:
+| Method       | Default route         |
+|------------- |-----------------------|
+| GET          | /myentity             |
+| GET          | /myentity/:id         |
+| POST         | /myentity             |
+| PUT          | /myentity             |
+| DELETE       | /myentity/:id         |
+
 #Author
 Rubens Pinheiro Gonçalves Cavalcante
 email: [rubenspgcavalcante@gmail.com](mailto:rubenspgcavalcante@gmail.com)

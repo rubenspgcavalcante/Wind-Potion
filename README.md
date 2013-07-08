@@ -10,8 +10,12 @@ Tested in python 2.7
 *   Elixir
 
 ##Installing
-```
+```shellscript
 python setup.py install
+```
+Or directly from github
+```shellscript
+sudo pip install git+https://github.com/rubenspgcavalcante/Wind-Potion.git
 ```
 
 ##How to use
@@ -69,10 +73,11 @@ class UserRESTHandler(RestHandler):
     User REST handler
     """
     def __init__(self, application, request, **kwargs):
-        RestHandler.__init__(self, application, request, **kwargs)
+        super(UserHandler, self).__init__(application, request, **kwargs)
 
     @authenticated
     def delete(self, id):
+        # You can use the super method too: super(UserHandler, self).delete(id)
         self._service.delete(id)
 ```
 Note the _service property. 

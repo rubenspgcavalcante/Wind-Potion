@@ -60,7 +60,7 @@ class UserRESTHandler(SecureRestHandler):
 
 If only a few REST methods must be secured by authentication, (in this exmaple the DELETE) simply do:
 ```python
-from windpotion.annotations import REST
+from windpotion.annotations import REST, authenticated
 from windpotion.handlers import RestHandler
 
 @REST(UserService)
@@ -71,10 +71,12 @@ class UserRESTHandler(RestHandler):
     def __init__(self, application, request, **kwargs):
         RestHandler.__init__(self, application, request, **kwargs)
 
-    @windpotion.annotations.authenticated
+    @authenticated
     def delete(self, id):
-        RestHandler.delete(id)
+        self._service.delete(id)
 ```
+Note the _service property. 
+Every RestHandler has one service associated, and can be acessed using the _service property.
 
 ### Overrinding Services
 You want override the service default methods? I'll show a example of all users created has the named
@@ -90,9 +92,25 @@ class UserService(object):
         self._meta.create(self, dict_args)
 ```
 Note the *_meta* property, this is because the original create method is from a metaclass,
-so you can access all the ServiceMeta methods using this property.
+so you can access all the ServiceMeta methods using this property.  
 
-##Getting the routers
+### Adding methods to services
+Other ussefull property to is the *_entity* property. It's the elixir entity which this service is
+associated. So if you want to build more methods and needs the entity to do queries, just use the *_entity* property:
+
+```python
+from windpotion.annotations import service
+
+@service(User)
+class UserService(object):
+    
+    #Example custom method: Will show the first ten results
+    def listFirstTen(self):
+        return self._entity.query.limit(10).all()
+```
+
+
+##Getting the default routers
 You can get the router bys using the RestHandler.getRouter method:
 ```python
 

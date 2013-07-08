@@ -1,8 +1,8 @@
-Wind Potion - REST API for use with Tornado and SQLAlchemy Elixir
+Wind Potion
 ===========
 
 ##About
-A simple structure to build RESTful handler
+REST API for use with Tornado and SQLAlchemy Elixir
 
 ##Dependeces
 Tested in python 2.7
@@ -15,6 +15,7 @@ python setup.py install
 ```
 
 ##How to use
+### Simple use
 First create a service, (Here we'll create a user service), and annotates like a service of the
 entity user, (the elixir Entity):
 ```python
@@ -41,6 +42,7 @@ class UserRESTHandler(RestHandler):
         RestHandler.__init__(self, application, request, **kwargs)
 ```
 
+### Authenticated validation
 If you want to permit only a logged user to use the REST methods from handler, it's just use the
 SecureRestHandler:
 ```python
@@ -74,6 +76,7 @@ class UserRESTHandler(RestHandler):
         RestHandler.delete(id)
 ```
 
+### Overrinding Services
 You want override the service default methods? I'll show a example of all users created has the named
 turned to upper case:
 ```python

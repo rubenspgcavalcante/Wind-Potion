@@ -1,9 +1,9 @@
 import functools
 from tornado.web import HTTPError
 from elixir import session
+from windpotion.settings import Options
 
 __author__ = 'Rubens Pinheiro'
-__email__ = "rubenspgcavalcante@gmail.com"
 __date__ = "03/07/13 22:26"
 
 def REST(Service):
@@ -91,9 +91,15 @@ def authenticated(method):
     If user isn't logged (using as reference the handler current_user),
     raises a 403 HTTP error. Doesn't redirects.
     """
+
     @functools.wraps(method)
     def wrapper(self, *args, **kwargs):
-        if not self.current_user:
+        options = Options()
+        if options.custom_validation:
+            if not options.custom_validation():
+                raise HTTPError(403)
+
+        elif not self.current_user:
             raise HTTPError(403)
 
         return method(self, *args, **kwargs)

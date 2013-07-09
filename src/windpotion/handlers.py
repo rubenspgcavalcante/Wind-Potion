@@ -3,7 +3,7 @@ from sqlalchemy.exc import IntegrityError
 from tornado.escape import json_decode, json_encode
 from tornado.web import RequestHandler, HTTPError
 from windpotion.serializers import Serializer
-from windpotion import annotations
+from windpotion import decorators
 
 __author__ = 'Rubens Pinheiro'
 __email__ = "rubenspgcavalcante@gmail.com"
@@ -67,18 +67,18 @@ class SecureRestHandler(RestHandler):
     def __init__(self, application, request, **kwargs):
         super(SecureRestHandler, self).__init__(application, request, **kwargs)
 
-    @annotations.authenticated
+    @decorators.authenticated
     def get(self, id, **kwargs):
         return super(SecureRestHandler, self).get(id, **kwargs)
 
-    @annotations.authenticated
+    @decorators.authenticated
     def post(self, dict_args=None, **kwargs):
         return super(SecureRestHandler, self).post(dict_args=None, **kwargs)
 
-    @annotations.authenticated
+    @decorators.authenticated
     def put(self, dict_args=None, **kwargs):
         return super(SecureRestHandler, self).post(dict_args=None, **kwargs)
 
-    @annotations.authenticated
+    @decorators.authenticated
     def delete(self, id, **kwargs):
         return super(SecureRestHandler, self).delete(id, **kwargs)

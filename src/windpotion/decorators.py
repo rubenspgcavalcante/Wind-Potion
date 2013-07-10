@@ -99,7 +99,7 @@ def authenticated(method):
             if not options.custom_validation():
                 raise HTTPError(403)
 
-        elif not self.current_user:
+        elif not self.get_current_user():
             raise HTTPError(403)
 
         return method(self, *args, **kwargs)

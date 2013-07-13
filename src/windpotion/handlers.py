@@ -15,6 +15,16 @@ class RestHandler(RequestHandler):
         self.serializer = Serializer()
         self.set_header("Content-type", "application/json")
 
+    def filterJsonContent(self):
+        content_type = self.request.headers.get("Content-Type", "")
+
+        if content_type.startswith("application/json"):
+            return json_decode(self.request.body)
+
+        return None
+
+        return False
+
     def get(self, id, **kwargs):
         if id != "":
             id = json_decode(id)
@@ -28,13 +38,14 @@ class RestHandler(RequestHandler):
             self.write(self.serializer.entitiesToJSON(results))
 
     def post(self, dict_args=None, **kwargs):
-        if dict_args is not None:
-            params = dict_args
-        else:
+        params = self.filterJsonContent()
+        if params is None:
             params = {k: ''.join(v) for k,v in self.request.arguments.iteritems()}
 
         try:
             self._service.create(params)
+            self.write(json_encode({}))
+
         except IntegrityError:
             session.rollback()
             raise HTTPError(400)
@@ -50,6 +61,7 @@ class RestHandler(RequestHandler):
                 raise HTTPError(400)
 
             self._service.save(params)
+
         except IntegrityError:
             session.rollback()
             raise HTTPError(400)

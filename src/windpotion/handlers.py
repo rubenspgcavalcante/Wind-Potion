@@ -1,7 +1,6 @@
-from elixir import session
-from sqlalchemy.exc import IntegrityError
 from tornado.escape import json_decode, json_encode
 from tornado.web import RequestHandler, HTTPError
+from windpotion.errors import DatabaseException
 from windpotion.serializers import Serializer
 from windpotion import decorators
 
@@ -22,8 +21,6 @@ class RestHandler(RequestHandler):
             return json_decode(self.request.body)
 
         return None
-
-        return False
 
     def get(self, id, **kwargs):
         if id != "":
@@ -46,30 +43,40 @@ class RestHandler(RequestHandler):
             self._service.create(params)
             self.write(json_encode({}))
 
-        except IntegrityError:
-            session.rollback()
-            raise HTTPError(400)
+        except DatabaseException as e:
+            self.set_status(400)
+            self.finish(json_encode({'error': True, 'message': e.message}))
 
     def put(self, dict_args=None, **kwargs):
-        if dict_args is not None:
-            params = dict_args
-        else:
+        params = self.filterJsonContent()
+        if params is None:
             params = {k: ''.join(v) for k,v in self.request.arguments.iteritems()}
 
+        #If the call is from a child class, use the argument parameter dict_args
+        if params is None:
+            params = dict_args
+
         try:
-            if params.get("id") is None:
+            if not hasattr(params, 'id'):
                 raise HTTPError(400)
 
             self._service.save(params)
+            self.write(json_encode({}))
 
-        except IntegrityError:
-            session.rollback()
-            raise HTTPError(400)
+        except DatabaseException as e:
+            self.set_status(400)
+            self.finish(json_encode({'error': True, 'message': e.message}))
 
     def delete(self, id, **kwargs):
         if id != "":
             id = json_decode(id)
-            self._service.delete(id)
+
+            try:
+                self._service.delete(id)
+
+            except DatabaseException as e:
+                self.set_status(400)
+                self.finish(json_encode({'error': True, 'message': e.message}))
 
     @staticmethod
     def getRouter(handler):

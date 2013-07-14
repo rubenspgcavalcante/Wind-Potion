@@ -1,6 +1,8 @@
 import functools
+from sqlalchemy.exc import IntegrityError
 from tornado.web import HTTPError
 from elixir import session
+from windpotion.errors import DatabaseException
 from windpotion.settings import Options
 
 __author__ = 'Rubens Pinheiro'
@@ -50,6 +52,15 @@ def service(Entity):
 
             return obj
 
+        def commitChanges(self):
+            try:
+                session.commit()
+                session.flush()
+
+            except IntegrityError as e:
+                session.rollback()
+                raise DatabaseException(e, self.Entity)
+
         def list(self, limit=None, orderBy=None):
             record = self.Entity.query
             if type(orderBy) is list:
@@ -71,17 +82,18 @@ def service(Entity):
             obj = self.Entity()
             obj.from_dict(dict_attrs)
             session.add(obj)
-            session.commit()
+            self.commitChanges()
 
         def save(self, dict_attrs):
             obj = self.Entity.get_by(id=dict_attrs["id"])
             obj.from_dict(dict_attrs)
-            session.commit()
+            self.commitChanges()
+
 
         def delete(self, id):
             obj = self.Entity.get_by(id=id)
             obj.delete()
-            session.commit()
+            self.commitChanges()
 
     return ServiceMeta
 

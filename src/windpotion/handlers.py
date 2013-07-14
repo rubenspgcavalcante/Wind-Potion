@@ -73,6 +73,7 @@ class RestHandler(RequestHandler):
 
             try:
                 self._service.delete(id)
+                self.write(json_encode({}))
 
             except DatabaseException as e:
                 self.set_status(400)
@@ -80,7 +81,7 @@ class RestHandler(RequestHandler):
 
     @staticmethod
     def getRouter(handler):
-        return [(r'/%s/?(?P<id>\d?)' % handler.Service.Entity.__name__.lower(), handler)]
+        return [(r'/%s/?(?P<id>[0-9]*)' % handler.Service.Entity.__name__.lower(), handler)]
 
 class SecureRestHandler(RestHandler):
     def __init__(self, application, request, **kwargs):
